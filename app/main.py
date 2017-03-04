@@ -228,6 +228,9 @@ def move():
     # If we aren't going for the food, go for our own tail instead.
     if not path:
         # TODO: Don't just go for your own tail. Prefer to go closer to the middle.
+        snek_length = len(snek_coords) + 1
+        board_x_center = len(grid)
+        board_y_center = len(grid[0])
         path = a_star(snek_head, snek['coords'][-1], grid, snek_coords)
 
     despair = not (path and len(path) > 1)
