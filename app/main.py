@@ -13,8 +13,6 @@ GOLD = 4
 SAFTEY = 5
 def goals(data):
     result = data['food']
-    if data['mode'] == 'advanced':
-        result.extend(data['gold'])
     return result
 
 def direction(from_cell, to_cell):
@@ -59,8 +57,6 @@ def init(data):
     if data['mode'] == 'advanced':
         for wall in data['walls']:
             grid[wall[0]][wall[1]] = WALL
-        for g in data['gold']:
-            grid[g[0]][g[1]] = GOLD
 
     for f in data['food']:
         grid[f[0]][f[1]] = FOOD
@@ -74,7 +70,7 @@ def static(path):
 
 @bottle.get('/')
 def index():
-    head_url = '%s://%s/static/head.gif' % (
+    head_url = '%s://%s/static/head.png' % (
         bottle.request.urlparts.scheme,
         bottle.request.urlparts.netloc
     )
@@ -109,9 +105,6 @@ def start():
 #     ],
 #     "walls": [    // Advanced Only
 #         [2, 2]
-#     ],
-#     "gold": [     // Advanced Only
-#         [5, 5]
 #     ]
 # }
 
@@ -126,8 +119,7 @@ def start():
 #     "health": 83,
 #     "coords": [ [1, 1], [1, 2], [2, 2] ],
 #     "kills": 4,
-#     "food": 12,
-#     "gold": 2
+#     "food": 12
 # }
 
 @bottle.post('/move')
@@ -159,8 +151,6 @@ def move():
     path = None
     middle = [data['width'] / 2, data['height'] / 2]
     foods = sorted(data['food'], key = lambda p: distance(p,middle))
-    if data['mode'] == 'advanced':
-        foods = data['gold'] + foods
     for food in foods:
         #print food
         tentative_path = a_star(snek_head, food, grid, snek_coords)
@@ -237,7 +227,7 @@ def move():
 
     return {
         'move': direction(path[0], path[1]),
-        'taunt': 'TRAITOR!'
+        'taunt': "I'm a sneaky snek!"
     }
 
 
