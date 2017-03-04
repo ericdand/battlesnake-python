@@ -115,18 +115,17 @@ def start():
 #     ]
 # }
 
-#SNAKE
+# SNAKE
 # {
-#     "id": "1234-567890-123456-7890",
-#     "name": "Well Documented Snake",
-#     "status": "alive",
-#     "message": "Moved north",
-#     "taunt": "Let's rock!",
-#     "age": 56,
-#     "health": 83,
-#     "coords": [ [1, 1], [1, 2], [2, 2] ],
-#     "kills": 4,
-#     "food": 12
+#   "taunt": "git gud",
+#   "name": "my-snake",
+#   "id": "5b079dcd-0494-4afd-a08e-72c9a7c2d983",
+#   "health_points": 93,
+#   "coords": [
+#     [0, 0],
+#     [0, 0],
+#     [0, 0]
+#   ]
 # }
 
 @bottle.post('/move')
@@ -158,60 +157,77 @@ def move():
     path = None
     middle = [data['width'] / 2, data['height'] / 2]
     foods = sorted(data['food'], key = lambda p: distance(p,middle))
-    for food in foods:
-        #print food
-        tentative_path = a_star(snek_head, food, grid, snek_coords)
-        if not tentative_path:
-            print "no path to food"
-            continue
 
-        path_length = len(tentative_path)
-        snek_length = len(snek_coords) + 1
-
-        can_reach_food = True
+    # If there's only one food and we're the healthiest snek,
+    # then we can try to starve out the other sneks.
+    if len(foods) == 1:
+        least_hungry_snek = True
         for enemy in data['snakes']:
             if enemy['id'] == data['you']:
                 continue
-            pathing_epsilon = max(data['width'], data['height'])/4
-            # When racing another snake to food, we will go for the food if no
-            # other snek is pathing_epsilon spaces closer than us. (Manhattan distance)
-            if path_length > distance(enemy['coords'][0], food) + pathing_epsilon:
-                can_reach_food = False
-        if not can_reach_food:
-            continue
-
-        # Update snek
-        if path_length < snek_length:
-            remainder = snek_length - path_length
-            new_snek_coords = list(reversed(tentative_path)) + snek_coords[:remainder]
-        else:
-            new_snek_coords = list(reversed(tentative_path))[:snek_length]
-
-        if grid[new_snek_coords[0][0]][new_snek_coords[0][1]] == FOOD:
-            # we ate food so we grow
-            new_snek_coords.append(new_snek_coords[-1])
-
-        # Create a new grid with the updates snek positions
-        new_grid = copy.deepcopy(grid)
-
-        for coord in snek_coords:
-            new_grid[coord[0]][coord[1]] = 0
-        for coord in new_snek_coords:
-            new_grid[coord[0]][coord[1]] = SNAKE
-
-        #printg(grid, 'orig')
-        #printg(new_grid, 'new')
-
-        #print snek['coords'][-1]
-        foodtotail = a_star(food,new_snek_coords[-1],new_grid, new_snek_coords)
-        if foodtotail:
-            path = tentative_path
-            break
-        print "no path to tail from food"
-    
-    #end for food in foods
+            if enemy['health_points'] > snek['health_points']:
+                least_hungry_snek = False
+        if least_hungry_snek:
+            # Encircle the food in an attempt to starve other snakes.
+            path = a_star(snek_head, foods[0], grid, snek_coords)
+            # if not path:
+            # NOTE: Eric is working on this right now!
 
     if not path:
+        for food in foods:
+            #print food
+            tentative_path = a_star(snek_head, food, grid, snek_coords)
+            if not tentative_path:
+                print "no path to food"
+                continue
+
+            path_length = len(tentative_path)
+            snek_length = len(snek_coords) + 1
+
+            can_reach_food = True
+            for enemy in data['snakes']:
+                if enemy['id'] == data['you']:
+                    continue
+                pathing_epsilon = max(data['width'], data['height'])/4
+                # When racing another snake to food, we will go for the food if no
+                # other snek is pathing_epsilon spaces closer than us.
+                if path_length > distance(enemy['coords'][0], food) + pathing_epsilon:
+                    can_reach_food = False
+                # We also always go for the food if we have less than 40 health.
+                if snek['health_points'] < 40:
+                    can_reach_food = True
+            if not can_reach_food:
+                continue
+
+            # Update snek
+            if path_length < snek_length:
+                remainder = snek_length - path_length
+                new_snek_coords = list(reversed(tentative_path)) + snek_coords[:remainder]
+            else:
+                new_snek_coords = list(reversed(tentative_path))[:snek_length]
+
+            if grid[new_snek_coords[0][0]][new_snek_coords[0][1]] == FOOD:
+                # we ate food so we grow
+                new_snek_coords.append(new_snek_coords[-1])
+
+            # Create a new grid with the updated snek positions
+            new_grid = copy.deepcopy(grid)
+
+            for coord in snek_coords:
+                new_grid[coord[0]][coord[1]] = 0
+            for coord in new_snek_coords:
+                new_grid[coord[0]][coord[1]] = SNAKE
+
+            foodtotail = a_star(food,new_snek_coords[-1],new_grid, new_snek_coords)
+            if foodtotail:
+                path = tentative_path
+                break
+            print "no path to tail from food"
+        #end for food in foods
+
+    # If we aren't going for the food, go for our own tail instead.
+    if not path:
+        # TODO: Don't just go for your own tail. Prefer to go closer to the middle.
         path = a_star(snek_head, snek['coords'][-1], grid, snek_coords)
 
     despair = not (path and len(path) > 1)
@@ -234,7 +250,7 @@ def move():
 
     return {
         'move': direction(path[0], path[1]),
-        'taunt': "I'm a sneaky snek!"
+        'taunt': "I'm a sneeky snek!"
     }
 
 
