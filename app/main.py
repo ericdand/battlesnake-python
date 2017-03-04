@@ -251,9 +251,29 @@ def move():
     # If we aren't going for the food, go for our own tail instead.
     if not path:
         # TODO: Don't just go for your own tail. Prefer to go closer to the middle.
+        # determine snake circle radius
         snek_length = len(snek_coords) + 1
-        board_x_center = len(grid)
-        board_y_center = len(grid[0])
+        snek_radius = snek_length/3
+
+        # determine center of board (might be bad, check above)
+        board_x_center = len(grid)/2
+        board_y_center = len(grid[0])/2
+
+        # determine the location of the snake's head
+        snek_head_x = snek['coords'][0][0]
+        snek_head_y = snek['coords'][0][1]
+
+        # determine bounds of snake circle around center
+        left_x = board_x_center - snek_radius
+        right_x = board_x_center + snek_radius
+        upper_y = board_y_center - snek_radius
+        bottom_y = board_y_center + snek_radius
+
+        # if outside, move towards center.  If inside, continue as normal
+        if snek_head_x < left_x or snek_head_x > right_x or snek_head_y < upper_y or snek_head_y > bottom_y:
+            path = a_star(snek_head, grid[board_x_center][board_y_center], grid, snek_coords)
+
+    if not path:
         path = a_star(snek_head, snek['coords'][-1], grid, snek_coords)
 
     despair = not (path and len(path) > 1)
