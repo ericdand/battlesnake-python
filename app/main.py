@@ -8,7 +8,6 @@ SNEK_BUFFER = 3
 SNAKE = 1
 WALL = 2
 FOOD = 3
-GOLD = 4
 SAFTEY = 5
 
 def direction(from_cell, to_cell):
@@ -135,7 +134,7 @@ def move():
     data = bottle.request.json
     snek, grid = init(data)
 
-    #foreach snake
+    # Dodge other snakes.
     for enemy in data['snakes']:
         if (enemy['id'] == data['you']):
             continue
@@ -153,7 +152,7 @@ def move():
             if enemy['coords'][0][0] > 0:
                 grid[enemy['coords'][0][0]-1][enemy['coords'][0][1]] = SAFTEY
 
-
+    
     snek_head = snek['coords'][0]
     snek_coords = snek['coords']
     path = None
@@ -163,19 +162,22 @@ def move():
         #print food
         tentative_path = a_star(snek_head, food, grid, snek_coords)
         if not tentative_path:
-            #print "no path to food"
+            print "no path to food"
             continue
 
         path_length = len(tentative_path)
         snek_length = len(snek_coords) + 1
 
-        dead = False
+        can_reach_food = True
         for enemy in data['snakes']:
             if enemy['id'] == data['you']:
                 continue
-            if path_length > distance(enemy['coords'][0], food):
-                dead = True
-        if dead:
+            pathing_epsilon = max(data['width'], data['height'])/4
+            # When racing another snake to food, we will go for the food if no
+            # other snek is pathing_epsilon spaces closer than us. (Manhattan distance)
+            if path_length > distance(enemy['coords'][0], food) + pathing_epsilon:
+                can_reach_food = False
+        if not can_reach_food:
             continue
 
         # Update snek
@@ -205,23 +207,20 @@ def move():
         if foodtotail:
             path = tentative_path
             break
-        #print "no path to tail from food"
-
-
+        print "no path to tail from food"
+    
+    #end for food in foods
 
     if not path:
         path = a_star(snek_head, snek['coords'][-1], grid, snek_coords)
 
     despair = not (path and len(path) > 1)
-
     if despair:
         for neighbour in neighbours(snek_head,grid,0,snek_coords, [1,2,5]):
             path = a_star(snek_head, neighbour, grid, snek_coords)
             #print 'i\'m scared'
             break
-
     despair = not (path and len(path) > 1)
-
 
     if despair:
         for neighbour in neighbours(snek_head,grid,0,snek_coords, [1,2]):
@@ -242,9 +241,6 @@ def move():
 @bottle.post('/end')
 def end():
     data = bottle.request.json
-
-    # TODO: Do things with data
-
     return {
         'taunt': 'battlesnake-python!'
     }
