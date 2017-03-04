@@ -5,28 +5,24 @@ import math
 import os
 
 SNEK_BUFFER = 3
-ID = 'de508402-17c8-4ac7-ab0b-f96cb53fbee8'
 SNAKE = 1
 WALL = 2
 FOOD = 3
 GOLD = 4
 SAFTEY = 5
-def goals(data):
-    result = data['food']
-    return result
 
 def direction(from_cell, to_cell):
     dx = to_cell[0] - from_cell[0]
     dy = to_cell[1] - from_cell[1]
 
     if dx == 1:
-        return 'east'
+        return 'right'
     elif dx == -1:
-        return 'west'
+        return 'left'
     elif dy == -1:
-        return 'north'
+        return 'up'
     elif dy == 1:
-        return 'south'
+        return 'down'
 
 def distance(p, q):
     dx = abs(p[0] - q[0])
@@ -49,14 +45,10 @@ def closest(items, start):
 def init(data):
     grid = [[0 for col in xrange(data['height'])] for row in xrange(data['width'])]
     for snek in data['snakes']:
-        if snek['id']== ID:
+        if snek['id']== data['you']:
             mysnake = snek
         for coord in snek['coords']:
             grid[coord[0]][coord[1]] = SNAKE
-
-    if data['mode'] == 'advanced':
-        for wall in data['walls']:
-            grid[wall[0]][wall[1]] = WALL
 
     for f in data['food']:
         grid[f[0]][f[1]] = FOOD
@@ -80,20 +72,39 @@ def index():
         'head': head_url
     }
 
-
+# Input format:
+# {
+#   "width": int,
+#   "height": int,
+#   "game_id": uuid
+# }
 @bottle.post('/start')
 def start():
     data = bottle.request.json
 
-    # TODO: Do things with data
-
+    # Response format:
+    # {
+    #     "color": "#FF0000",
+    #     "secondary_color": "#00FF00",
+    #     "head_url": "http://placecage.com/c/100/100",
+    #     "name": "Cage Snake",
+    #     "taunt": "OH GOD NOT THE BEES"
+    #     "head_type": "pixel",
+    #     "tail_type": "pixel"
+    # }
     return {
-        'taunt': 'battlesnake-python!'
+        'name': 'sneeky-snek',
+        'taunt': "I'm a sneeky snek!",
+        'color': '#FF55FF',
+        'secondary_color': '#55AA55',
+        'head_url': 'https://github.com/ericdand/battlesnake-python/raw/master/static/head.png',
+        'head_type': 'tongue',
+        'tail_type': 'block-bum'
     }
+
 # DATA OBJECT
 # {
 #     "game": "hairy-cheese",
-#     "mode": "advanced",
 #     "turn": 4,
 #     "height": 20,
 #     "width": 30,
@@ -102,9 +113,6 @@ def start():
 #     ],
 #     "food": [
 #         [1, 2], [9, 3], ...
-#     ],
-#     "walls": [    // Advanced Only
-#         [2, 2]
 #     ]
 # }
 
@@ -129,7 +137,7 @@ def move():
 
     #foreach snake
     for enemy in data['snakes']:
-        if (enemy['id'] == ID):
+        if (enemy['id'] == data['you']):
             continue
         if distance(snek['coords'][0], enemy['coords'][0]) > SNEK_BUFFER:
             continue
@@ -163,7 +171,7 @@ def move():
 
         dead = False
         for enemy in data['snakes']:
-            if enemy['id'] == ID:
+            if enemy['id'] == data['you']:
                 continue
             if path_length > distance(enemy['coords'][0], food):
                 dead = True
