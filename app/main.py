@@ -253,7 +253,7 @@ def move():
         # TODO: Don't just go for your own tail. Prefer to go closer to the middle.
         # determine snake circle radius
         snek_length = len(snek_coords) + 1
-        snek_radius = snek_length/3
+        snek_radius = snek_length/6
 
         # determine center of board (might be bad, check above)
         board_x_center = len(grid)/2
@@ -272,6 +272,7 @@ def move():
         # if outside, move towards center.  If inside, continue as normal
         if snek_head_x < left_x or snek_head_x > right_x or snek_head_y < upper_y or snek_head_y > bottom_y:
             path = a_star(snek_head, grid[board_x_center][board_y_center], grid, snek_coords)
+            taunt = "To the middle!"
 
     if not path:
         path = a_star(snek_head, snek['coords'][-1], grid, snek_coords)
