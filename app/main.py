@@ -192,6 +192,7 @@ def move():
             # We also always go for the food if we have less than 40 health.
             if snek['health_points'] < 40:
                 can_reach_food = True
+                taunt = "I'm hungry!"
         if not can_reach_food:
             continue
 
