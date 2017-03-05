@@ -170,9 +170,10 @@ def move():
     snek_coords = snek['coords']
     path = None
     middle = [data['width'] / 2, data['height'] / 2]
-    foods = sorted(data['food'], key = lambda p: distance(p,snek_head))
+    foods = sorted(data['food'], key = lambda p: distance(snek_head, p))
 
     for food in foods:
+        print food
         path = a_star(snek_head, food, grid, snek_coords)
         if not path:
             print "no path to food"
@@ -228,40 +229,6 @@ def move():
                         break
         # end trying to starve out sneks
 
-        current_direction = direction(snek['coords'][1], snek['coords'][0])
-        for enemy in data['snakes']:
-            if enemy['id'] == data['you']: continue
-            if current_direction == 'left' or current_direction == 'right':
-                if (len(enemy['coords']) < len(snek['coords'])-1):
-                    if enemy['coords'][0] == snek['coords'][1][1]+1:
-                        path = [(snek['coords'][0][0],snek['coords'][0][1]+1)]
-                        taunt = "swerve!"
-                    elif enemy['coords'][0] == snek['coords'][1][1]-1:
-                        path = [(snek['coords'][0][0],snek['coords'][0][1]-1)]
-                        taunt = "swerve!"
-                else:
-                    if enemy['coords'][0] == snek['coords'][2][1]+1:
-                        path = [(snek['coords'][0][0],snek['coords'][0][1]+1)]
-                        taunt = "swerve!"
-                    elif enemy['coords'][0] == snek['coords'][2][1]-1:
-                        path = [(snek['coords'][0][0],snek['coords'][0][1]-1)]
-                        taunt = "swerve!"
-            elif current_direction == 'up' or current_direction == 'down':
-                if (len(enemy['coords']) < len(snek['coords'])-1):
-                    if enemy['coords'][0] == snek['coords'][1][0]+1:
-                        path = [(snek['coords'][0][0]+1,snek['coords'][0][1])]
-                        taunt = "swerve!"
-                    elif enemy['coords'][0] == snek['coords'][1][0]-1:
-                        path = [(snek['coords'][0][0]-1,snek['coords'][0][1])]
-                        taunt = "swerve!"
-                else:
-                    if enemy['coords'][0] == snek['coords'][2][0]+1:
-                        path = [(snek['coords'][0][0]+1,snek['coords'][0][1])]
-                        taunt = "swerve!"
-                    elif enemy['coords'][0] == snek['coords'][2][0]-1:
-                        path = [(snek['coords'][0][0]-1,snek['coords'][0][1])]
-                        taunt = "swerve!"
-
         # Update snek
         if len(path) < snek_length:
             remainder = snek_length - len(path)
@@ -286,6 +253,40 @@ def move():
             path = None
             print "no path to tail from food"
     #end for food in foods
+
+    current_direction = direction(snek['coords'][1], snek['coords'][0])
+    for enemy in data['snakes']:
+        if enemy['id'] == data['you']: continue
+        if current_direction == 'left' or current_direction == 'right':
+            if (len(enemy['coords']) < len(snek['coords'])-1):
+                if enemy['coords'][0] == snek['coords'][1][1]+1:
+                    path = [snek_head, (snek['coords'][0][0],snek['coords'][0][1]+1)]
+                    taunt = "swerve!"
+                elif enemy['coords'][0] == snek['coords'][1][1]-1:
+                    path = [snek_head, (snek['coords'][0][0],snek['coords'][0][1]-1)]
+                    taunt = "swerve!"
+            else:
+                if enemy['coords'][0] == snek['coords'][2][1]+1:
+                    path = [snek_head, (snek['coords'][0][0],snek['coords'][0][1]+1)]
+                    taunt = "swerve!"
+                elif enemy['coords'][0] == snek['coords'][2][1]-1:
+                    path = [snek_head, (snek['coords'][0][0],snek['coords'][0][1]-1)]
+                    taunt = "swerve!"
+        elif current_direction == 'up' or current_direction == 'down':
+            if (len(enemy['coords']) < len(snek['coords'])-1):
+                if enemy['coords'][0] == snek['coords'][1][0]+1:
+                    path = [snek_head, (snek['coords'][0][0]+1,snek['coords'][0][1])]
+                    taunt = "swerve!"
+                elif enemy['coords'][0] == snek['coords'][1][0]-1:
+                    path = [snek_head, (snek['coords'][0][0]-1,snek['coords'][0][1])]
+                    taunt = "swerve!"
+            else:
+                if enemy['coords'][0] == snek['coords'][2][0]+1:
+                    path = [snek_head, (snek['coords'][0][0]+1,snek['coords'][0][1])]
+                    taunt = "swerve!"
+                elif enemy['coords'][0] == snek['coords'][2][0]-1:
+                    path = [snek_head, (snek['coords'][0][0]-1,snek['coords'][0][1])]
+                    taunt = "swerve!"
 
     # If we aren't going for the food, go for our own tail instead.
     if not path:
