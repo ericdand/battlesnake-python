@@ -233,24 +233,32 @@ def move():
                 if (len(enemy['coords']) < len(snek['coords'])-1):
                     if enemy['coords'][0] == snek['coords'][1][1]+1:
                         path = [(snek['coords'][0][0],snek['coords'][0][1]+1)]
+                        taunt = "swerve!"
                     elif enemy['coords'][0] == snek['coords'][1][1]-1:
                         path = [(snek['coords'][0][0],snek['coords'][0][1]-1)]
+                        taunt = "swerve!"
                 else:
                     if enemy['coords'][0] == snek['coords'][2][1]+1:
                         path = [(snek['coords'][0][0],snek['coords'][0][1]+1)]
+                        taunt = "swerve!"
                     elif enemy['coords'][0] == snek['coords'][2][1]-1:
                         path = [(snek['coords'][0][0],snek['coords'][0][1]-1)]
+                        taunt = "swerve!"
             elif current_direction == 'up' or current_direction == 'down':
                 if (len(enemy['coords']) < len(snek['coords'])-1):
                     if enemy['coords'][0] == snek['coords'][1][0]+1:
-                        path = [(snek['coords'][0][0]+1,snek['coords'][0][1])] 
+                        path = [(snek['coords'][0][0]+1,snek['coords'][0][1])]
+                        taunt = "swerve!"
                     elif enemy['coords'][0] == snek['coords'][1][0]-1:
                         path = [(snek['coords'][0][0]-1,snek['coords'][0][1])]
+                        taunt = "swerve!"
                 else:
                     if enemy['coords'][0] == snek['coords'][2][0]+1:
                         path = [(snek['coords'][0][0]+1,snek['coords'][0][1])]
+                        taunt = "swerve!"
                     elif enemy['coords'][0] == snek['coords'][2][0]-1:
                         path = [(snek['coords'][0][0]-1,snek['coords'][0][1])]
+                        taunt = "swerve!"
 
         # Update snek
         if len(path) < snek_length:
