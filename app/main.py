@@ -1,4 +1,4 @@
-from AStar import *
+from AStar import neighbours, a_star
 import bottle
 import copy
 import math
@@ -173,22 +173,21 @@ def move():
     foods = sorted(data['food'], key = lambda p: distance(p,snek_head))
 
     for food in foods:
-        tentative_path = a_star(snek_head, food, grid, snek_coords)
-        if not tentative_path:
+        path = a_star(snek_head, food, grid, snek_coords)
+        if not path:
             print "no path to food"
             continue
 
-        path_length = len(tentative_path)
         snek_length = len(snek_coords) + 1
 
         can_reach_food = True
         for enemy in data['snakes']:
             if enemy['id'] == data['you']:
                 continue
-            pathing_epsilon = max(data['width'], data['height'])/2
+            pathing_epsilon = max(data['width'], data['height'])/5
             # When racing another snake to food, we will go for the food if no
             # other snek is pathing_epsilon spaces closer than us.
-            if path_length > distance(enemy['coords'][0], food) + pathing_epsilon:
+            if len(path) > distance(enemy['coords'][0], food) + pathing_epsilon:
                 can_reach_food = False
             # We also always go for the food if we have less than 40 health.
             if snek['health_points'] < 40:
@@ -203,23 +202,30 @@ def move():
             for enemy in data['snakes']:
                 if enemy['id'] == data['you']:
                     continue
-                if enemy['health_points'] > snek['health_points']:
+                if enemy['health_points'] >= snek['health_points']:
                     least_hungry_snek = False
+                    break
             if least_hungry_snek:
                 # Encircle the food in an attempt to starve other snakes.
-                path = a_star(snek_head, foods[0], grid, snek_coords)
-                if not path or len(path) > 2:
+                path = a_star(snek_head, food, grid, snek_coords)
+                if not path or len(path) > 3:
                     continue
                 # If we're really close, move to a space NEXT TO the food.
-                for space in spaces_around(food, data['width'], data['height']):
+                spaces_around_food = spaces_around(food, data['width'], data['height'])
+                spaces_around_food = filter(lambda x: x not in snek['coords'], spaces_around_food)
+                for space in spaces_around_food:
+                    print "Moving to space ({0}, {1}).".format(space[0], space[1])
+                    print "Food at ({0}, {1}).".format(food[0], food[1])
                     grid[food[0]][food[1]] = WALL
                     temp_path = a_star(snek_head, space, grid, snek_coords)
                     # If we're only one space away from encircling the food, go there.
-                    if len(temp_path) < 3:
+                    print temp_path
+                    if temp_path is not None and len(temp_path) < snek_length + 2:
                         print "blocking other sneks"
                         path = temp_path
                         taunt = "im in ur base stealin ur foodz"
                         break
+<<<<<<< Updated upstream
 
         current_direction = direction(snek['coords'][1], snek['coords'][0])
 
@@ -246,13 +252,16 @@ def move():
                         path = [(snek['coords'][0][0]+1,snek['coords'][0][1])]
                     elif enemy['coords'][0] == snek['coords'][2][0]-1:
                         path = [(snek['coords'][0][0]-1,snek['coords'][0][1])]
+=======
+        # end trying to starve out sneks
+>>>>>>> Stashed changes
 
         # Update snek
-        if path_length < snek_length:
-            remainder = snek_length - path_length
-            new_snek_coords = list(reversed(tentative_path)) + snek_coords[:remainder]
+        if len(path) < snek_length:
+            remainder = snek_length - len(path)
+            new_snek_coords = list(reversed(path)) + snek_coords[:remainder]
         else:
-            new_snek_coords = list(reversed(tentative_path))[:snek_length]
+            new_snek_coords = list(reversed(path))[:snek_length]
 
         if grid[new_snek_coords[0][0]][new_snek_coords[0][1]] == FOOD:
             # we ate food so we grow
@@ -267,15 +276,14 @@ def move():
             new_grid[coord[0]][coord[1]] = SNAKE
 
         foodtotail = a_star(food,new_snek_coords[-1],new_grid, new_snek_coords)
-        if foodtotail:
-            path = tentative_path
-            break
-        print "no path to tail from food"
+        if not foodtotail:
+            path = None
+            print "no path to tail from food"
     #end for food in foods
 
     # If we aren't going for the food, go for our own tail instead.
     if not path:
-        # TODO: Don't just go for your own tail. Prefer to go closer to the middle.
+        # Don't just go for your own tail. Prefer to go closer to the middle.
         # determine snake circle radius
         snek_length = len(snek_coords) + 1
         snek_radius = snek_length/6
