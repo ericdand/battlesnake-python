@@ -225,12 +225,11 @@ def move():
                         path = temp_path
                         taunt = "im in ur base stealin ur foodz"
                         break
-<<<<<<< Updated upstream
+        # end trying to starve out sneks
 
         current_direction = direction(snek['coords'][1], snek['coords'][0])
-
         for enemy in data['snakes']:
-            if current_direction == 'left' || current_direction == 'right':
+            if current_direction == 'left' or current_direction == 'right':
                 if (len(enemy['coords']) < len(snek['coords'])-1):
                     if enemy['coords'][0] == snek['coords'][1][1]+1:
                         path = [(snek['coords'][0][0],snek['coords'][0][1]+1)]
@@ -241,7 +240,7 @@ def move():
                         path = [(snek['coords'][0][0],snek['coords'][0][1]+1)]
                     elif enemy['coords'][0] == snek['coords'][2][1]-1:
                         path = [(snek['coords'][0][0],snek['coords'][0][1]-1)]
-            elif current_direction == 'up' || current_direction == 'down':
+            elif current_direction == 'up' or current_direction == 'down':
                 if (len(enemy['coords']) < len(snek['coords'])-1):
                     if enemy['coords'][0] == snek['coords'][1][0]+1:
                         path = [(snek['coords'][0][0]+1,snek['coords'][0][1])] 
@@ -252,9 +251,6 @@ def move():
                         path = [(snek['coords'][0][0]+1,snek['coords'][0][1])]
                     elif enemy['coords'][0] == snek['coords'][2][0]-1:
                         path = [(snek['coords'][0][0]-1,snek['coords'][0][1])]
-=======
-        # end trying to starve out sneks
->>>>>>> Stashed changes
 
         # Update snek
         if len(path) < snek_length:
