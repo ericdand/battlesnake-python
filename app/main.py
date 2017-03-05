@@ -308,7 +308,7 @@ def move():
 
         # if outside, move towards center.  If inside, continue as normal
         if snek_head_x < left_x or snek_head_x > right_x or snek_head_y < upper_y or snek_head_y > bottom_y:
-            path = a_star(snek_head, grid[board_x_center][board_y_center], grid, snek_coords)
+            path = a_star(snek_head, (board_x_center, board_y_center), grid, snek_coords)
             taunt = "To the middle!"
 
     if not path:
