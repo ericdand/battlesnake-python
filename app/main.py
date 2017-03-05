@@ -229,6 +229,7 @@ def move():
 
         current_direction = direction(snek['coords'][1], snek['coords'][0])
         for enemy in data['snakes']:
+            if enemy['id'] == data['you']: continue
             if current_direction == 'left' or current_direction == 'right':
                 if (len(enemy['coords']) < len(snek['coords'])-1):
                     if enemy['coords'][0] == snek['coords'][1][1]+1:
@@ -318,14 +319,14 @@ def move():
     if despair:
         for neighbour in neighbours(snek_head,grid,0,snek_coords, [1,2,5]):
             path = a_star(snek_head, neighbour, grid, snek_coords)
-            #print 'i\'m scared'
+            taunt = 'i\'m scared'
             break
     despair = not (path and len(path) > 1)
 
     if despair:
         for neighbour in neighbours(snek_head,grid,0,snek_coords, [1,2]):
             path = a_star(snek_head, neighbour, grid, snek_coords)
-            #print 'lik so scared'
+            taunt = 'lik so scared'
             break
 
     if path:
