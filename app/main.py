@@ -252,6 +252,9 @@ def move():
         if not foodtotail:
             path = None
             print "no path to tail from food"
+
+        # If we have a good path, use it.
+        if path is not None: break
     #end for food in foods
 
     current_direction = direction(snek['coords'][1], snek['coords'][0])
